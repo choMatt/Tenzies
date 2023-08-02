@@ -1,35 +1,79 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import Die from "./components/Die";
+import style from "./styles/App.module.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [dice, setDice] = useState(newDice());
+  const [isGameOver, setIsGameOver] = useState(false);
+
+  React.useEffect(() => {
+    const firstValue = dice[0].value
+    const allHeld = dice.every((die) => die.held)
+    const sameValue = dice.every((die) => die.value === firstValue)
+    if(sameValue && allHeld){
+      setIsGameOver((prevValue) => !prevValue)
+    }
+  }, [dice])
+
+  function newDieValue() {
+    return Math.floor(Math.random() * 6);
+  }
+
+  function newDice() {
+    const newArr = [];
+    for (let i = 0; i < 10; i++) {
+      const newDie = {
+        value: newDieValue(),
+        held: false,
+        id: i + 1,
+      };
+      newArr.push(newDie);
+    }
+    return newArr;
+  }
+
+  function holdDie(id) {
+    setDice((prevDice) => {
+      return prevDice.map((die) => {
+        return die.id === id ? { ...die, held: !die.held } : die;
+      });
+    });
+  }
+
+  function rollUnheldDie(){
+    if(!isGameOver){
+      setDice((prevDice) => {
+        return prevDice.map((die) => {
+          return die.held ? die : {value: newDieValue(), held: die.held, id: die.id}
+        })
+      })
+    } else {
+      setDice(newDice())
+      setIsGameOver((prevValue) => !prevValue)
+    }
+  }
+
+  const diceElements = dice.map((die) => {
+    return (
+      <Die
+        key={die.id}
+        value={die.value}
+        held={die.held}
+        id={die.id}
+        holdDie={holdDie}
+      />
+    );
+  });
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <main>
+      <div className={style.card}>
+        <h1 className={style.diceHeadingr}>Tenzies</h1>
+        <div className={style.diceContainer}>{diceElements}</div>
+        <button onClick={rollUnheldDie}>{isGameOver ? "restart" : "roll"}</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </main>
+  );
 }
 
-export default App
+export default App;
