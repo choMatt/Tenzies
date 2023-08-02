@@ -1,0 +1,18 @@
+.card{
+    border: 1px solid black;
+    width: 500px; height: 500px;
+    display: flex;
+    flex-direction: column;
+}
+.dieHeading{
+    border: 1px solid magenta;
+}
+.diceContainer{
+    align-self: center;
+    justify-self: center;
+    border: 3px solid black;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh;
+}
